@@ -9,12 +9,13 @@ def get_current_time(time_format):
     return current_time
 
 
-def generate_filename(room_id):
+def generate_filename(prefix, suffix):
     data = dict()
     data['c_time'] = get_current_time('%Y%m%d_%H%M')
-    data['room_id'] = room_id
-    return '_'.join(data.values()) + '.flv'
-
+    data['suffix'] = suffix
+    fnameN = prefix + '__' + '_'.join(data.values()) + '.flv'
+    fnameN = fnameN.replace('\\', '＼').replace('/', '／').replace('|', '｜')
+    return fnameN
 
 def inform(room_id, desp=''):
     if config.enable_inform:
