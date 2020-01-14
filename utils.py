@@ -12,8 +12,12 @@ def get_current_time(time_format):
 def generate_filename(prefix, suffix):
     data = dict()
     data['c_time'] = get_current_time('%Y%m%d_%H%M')
-    data['suffix'] = suffix
-    fnameN = prefix + '__' + '_'.join(data.values()) + '.flv'
+    fnameN = prefix + '__' + '_'.join(data.values()) + '__' + suffix + '.flv'
+    ##data['suffix'] = suffix
+    ##fnameN = prefix + '__' + '_'.join(data.values()) + '.flv'
+    #fnameN = fnameN.replace("\\", "＼")
+    #fnameN = fnameN.replace("/", "／")
+    #fnameN = fnameN.replace("|", "｜")
     fnameN = fnameN.replace('\\', '＼').replace('/', '／').replace('|', '｜')
     return fnameN
 
