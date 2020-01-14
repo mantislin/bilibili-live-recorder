@@ -1,7 +1,10 @@
 #!/bin/sh
 
-pushd "$(dirname ${0})" >/dev/null
-
+popdDepth=0
+if [[ "${PWD}" == "${HOME}" ]]; then
+    pushd "$(dirname ${0})" >/dev/null
+    popdDepth=$((${popdDepth}+1))
+fi
 IFS=$'\n'
 
 while true; do
@@ -15,4 +18,6 @@ while true; do
     sleep ${secDelay}
 done
 
-popd >/dev/null
+for (( i=0; i<${popdDepth}; i++ )); do
+    popd >/dev/null
+done
