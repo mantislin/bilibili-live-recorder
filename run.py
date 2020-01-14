@@ -4,16 +4,18 @@ import requests
 import time
 import config
 import utils
+import re
 import multiprocessing
 import urllib3
 urllib3.disable_warnings()
 
 
 class BiliBiliLiveRecorder(BiliBiliLive):
-    def __init__(self, room_id):
+    def __init__(self, room_id, check_interval=5*60):
         super().__init__(room_id)
         self.inform = utils.inform
         self.print = utils.print_log
+        self.check_interval = check_interval
         self.room_title = None
         self.host_name = None
 
@@ -30,37 +32,36 @@ class BiliBiliLiveRecorder(BiliBiliLive):
                 else:
                     self.print(self.room_id, '等待开播')
             except Exception as e:
-                print(e)
+                self.print(self.room_id, 'Error:' + str(e))
                 pass
             time.sleep(interval)
         return self.get_live_urls()
 
     def record(self, record_url, output_filename):
-        self.print(self.room_id, '√ 正在录制...' + self.room_id)
         try:
-            resp = requests.get(record_url, stream=True)
+            self.print(self.room_id, '√ 正在录制...' + self.room_id)
+            headers = dict()
+            headers['Accept-Encoding'] = 'identity'
+            headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+            headers['Referer'] = re.findall(r'(https://.*\/).*\.flv', record_url)[0]
+            resp = requests.get(record_url, stream=True, headers=headers)
+            with open(output_filename, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=1024):
+                    f.write(chunk) if chunk else None
         except Exception as e:
-            print(e)
+            self.print(self.room_id, 'Error while recording:' + str(e))
             pass
-        else:
-            try:
-                with open(output_filename, "wb") as f:
-                    for chunk in resp.iter_content(chunk_size=1024*3):
-                        f.write(chunk) if chunk else None
-            except Exception as e:
-                print(e)
-                pass
 
     def run(self):
         while True:
             try:
-                urls = self.check(interval=30)
+                urls = self.check(interval=self.check_interval)
                 filename = utils.generate_filename(self.host_name + '__' + self.room_title, self.room_id)
                 c_filename = os.path.join(os.getcwd(), 'files', filename)
                 self.record(urls[0], c_filename)
-                self.print(self.room_id, '录制完成')
+                self.print(self.room_id, '录制完成' + c_filename)
             except Exception as e:
-                print(e)
+                self.print(self.room_id, 'Error while checking or recording:' + str(e))
                 pass
 
 
