@@ -54,7 +54,7 @@ class BiliBiliLiveRecorder(BiliBiliLive):
     def run(self):
         while True:
             try:
-                urls = self.check(interval=10)
+                urls = self.check(interval=30)
                 filename = utils.generate_filename(self.host_name + '__' + self.room_title, self.room_id)
                 c_filename = os.path.join(os.getcwd(), 'files', filename)
                 self.record(urls[0], c_filename)
