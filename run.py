@@ -11,7 +11,7 @@ urllib3.disable_warnings()
 
 
 class BiliBiliLiveRecorder(BiliBiliLive):
-    def __init__(self, room_id, check_interval=5*60):
+    def __init__(self, room_id, check_interval=0.5*60):
         super().__init__(room_id)
         self.inform = utils.inform
         self.print = utils.print_log
